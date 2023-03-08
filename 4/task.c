@@ -85,8 +85,22 @@ int main()
                 exit(-1);
             }
 
-            size = write(fd[1], "34", 16);
-            if (size != 16)
+            int numbers[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            for (int i = 0; i < mes_size; i++)
+            {
+                if (str_buf[i] >= 48 && str_buf[i] <= 57)
+                {
+                    numbers[str_buf[i] - 48]++;
+                }
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                printf("%d ", numbers[i]);
+            }
+
+            size = write(fd[1], numbers, sizeof(int) * 10);
+            if (size != sizeof(int) * 10)
             {
                 printf("Can\'t write all string to pipe\n");
                 exit(-1);
@@ -106,13 +120,20 @@ int main()
                 printf("grandchild: Can\'t close writing side of pipe\n");
                 exit(-1);
             }
-            size = read(fd[0], str_buf, 16);
+            int numbers[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            size = read(fd[0], numbers, sizeof(int) * 10);
             if (size < 0)
             {
                 printf("Can\'t read string from pipe\n");
                 exit(-1);
             }
             printf("grandChild exit, str_buf: %s\n", str_buf);
+            for (size_t i = 0; i < 10; i++)
+            {
+                printf("%d ", numbers[i]);
+            }
+            
             if (close(fd[0]) < 0)
             {
                 printf("grandchild: Can\'t close reading side of pipe\n");

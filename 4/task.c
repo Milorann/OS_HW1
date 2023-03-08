@@ -1,4 +1,3 @@
-// 02-parent-child.c
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>

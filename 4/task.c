@@ -119,18 +119,22 @@ int main()
                 printf("third: Can\'t read string from pipe\n");
                 exit(-1);
             }
-            printf("third: exit, number of digits in the file:\n");
-            for (int i = 0; i < 10; i++)
-            {
-                printf("%d: %d\t", i, numbers[i]);
-            }
-            printf("\n");
 
             if (close(fd[0]) < 0)
             {
                 printf("third: Can\'t close reading side of pipe\n");
                 exit(-1);
             }
+
+            FILE *myfile;
+            myfile = fopen("output.txt", "w");
+            for (int i = 0; i < 10; i++)
+            {
+                fprintf(myfile, "%d: %d\n", i, numbers[i]);
+            }
+            fclose(myfile);
+
+            printf("third: exit, the number of digits is written to the output file\n");
         }
     }
 

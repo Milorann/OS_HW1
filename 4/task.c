@@ -5,8 +5,14 @@
 
 const int buf_size = 5000;
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 3)
+    {
+        printf("Wrong number of command line arguments\n");
+        exit(-1);
+    }
+
     int fd[2], result;
     size_t size;
     char str_buf[buf_size];
@@ -24,7 +30,7 @@ int main()
         exit(-1);
     }
     else if (result > 0)
-    { /* Parent process */
+    { // first process
         if (close(fd[0]) < 0)
         {
             printf("first: Can\'t close reading side of pipe\n");
@@ -33,7 +39,12 @@ int main()
 
         // read from file
         FILE *myfile;
-        myfile = fopen("input.txt", "r");
+        myfile = fopen(argv[1], "r");
+        if (myfile == NULL)
+        {
+            printf("Couldn't open the input file\n");
+            exit(-1);
+        }
         char text[buf_size];
         int i = 0;
         while ((text[i] = fgetc(myfile)) != EOF || i < buf_size)
@@ -58,8 +69,7 @@ int main()
         printf("first: exit\n");
     }
     else
-    { /* Child process */
-
+    { // second process
         result = fork();
         if (result < 0)
         {
@@ -102,10 +112,10 @@ int main()
                 exit(-1);
             }
 
-            printf("second: exit, read string:\n%s\n", str_buf);
+            printf("second: exit, the text is read\n");
         }
         else
-        { /* grandchild */
+        { // third process
             if (close(fd[1]) < 0)
             {
                 printf("third: Can\'t close writing side of pipe\n");
@@ -127,7 +137,12 @@ int main()
             }
 
             FILE *myfile;
-            myfile = fopen("output.txt", "w");
+            myfile = fopen(argv[2], "w");
+            if (myfile == NULL)
+            {
+                printf("Couldn't open the output file\n");
+                exit(-1);
+            }
             for (int i = 0; i < 10; i++)
             {
                 fprintf(myfile, "%d: %d\n", i, numbers[i]);

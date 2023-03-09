@@ -4,9 +4,6 @@
 #include <stdlib.h>
 
 const int buf_size = 5000;
-// const int buf_size = 10;
-const int mes_size = 5000;
-// const int mes_size = 5;
 
 int main()
 {
@@ -30,14 +27,14 @@ int main()
     { /* Parent process */
         if (close(fd[0]) < 0)
         {
-            printf("parent: Can\'t close reading side of pipe\n");
+            printf("first: Can\'t close reading side of pipe\n");
             exit(-1);
         }
 
         // read from file
         FILE *myfile;
         myfile = fopen("input.txt", "r");
-        char text[mes_size];
+        char text[buf_size];
         int i = 0;
         while ((text[i] = fgetc(myfile)) != EOF || i < buf_size)
         {
@@ -45,21 +42,20 @@ int main()
         }
         text[i] = '\0';
         text[buf_size - 1] = '\0';
-        printf("%s\n", text);
         fclose(myfile);
 
-        size = write(fd[1], text, mes_size);
-        if (size != mes_size)
+        size = write(fd[1], text, buf_size);
+        if (size != buf_size)
         {
-            printf("Can\'t write all string to pipe\n");
+            printf("first: Can\'t write the whole string to pipe\n");
             exit(-1);
         }
         if (close(fd[1]) < 0)
         {
-            printf("parent: Can\'t close writing side of pipe\n");
+            printf("first: Can\'t close writing side of pipe\n");
             exit(-1);
         }
-        printf("Parent exit\n");
+        printf("first: exit\n");
     }
     else
     { /* Child process */
@@ -67,26 +63,26 @@ int main()
         result = fork();
         if (result < 0)
         {
-            printf("Can\'t fork grandchild\n");
+            printf("second: Can\'t fork child\n");
             exit(-1);
         }
         else if (result > 0)
         {
-            size = read(fd[0], str_buf, mes_size);
+            size = read(fd[0], str_buf, buf_size);
             if (size < 0)
             {
-                printf("Can\'t read string from pipe\n");
+                printf("second: Can\'t read string from pipe\n");
                 exit(-1);
             }
 
             if (close(fd[0]) < 0)
             {
-                printf("child: Can\'t close reading side of pipe\n");
+                printf("second: Can\'t close reading side of pipe\n");
                 exit(-1);
             }
 
             int numbers[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-            for (int i = 0; i < mes_size; i++)
+            for (int i = 0; i < buf_size; i++)
             {
                 if (str_buf[i] >= 48 && str_buf[i] <= 57)
                 {
@@ -94,30 +90,25 @@ int main()
                 }
             }
 
-            for (int i = 0; i < 10; i++)
-            {
-                printf("%d ", numbers[i]);
-            }
-
             size = write(fd[1], numbers, sizeof(int) * 10);
             if (size != sizeof(int) * 10)
             {
-                printf("Can\'t write all string to pipe\n");
+                printf("second: Can\'t write all numbers to pipe\n");
                 exit(-1);
             }
             if (close(fd[1]) < 0)
             {
-                printf("child: Can\'t close writing side of pipe\n");
+                printf("second: Can\'t close writing side of pipe\n");
                 exit(-1);
             }
 
-            printf("Child exit, str_buf: %s\n", str_buf);
+            printf("second: exit, read string:\n%s\n", str_buf);
         }
         else
         { /* grandchild */
             if (close(fd[1]) < 0)
             {
-                printf("grandchild: Can\'t close writing side of pipe\n");
+                printf("third: Can\'t close writing side of pipe\n");
                 exit(-1);
             }
             int numbers[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -125,18 +116,19 @@ int main()
             size = read(fd[0], numbers, sizeof(int) * 10);
             if (size < 0)
             {
-                printf("Can\'t read string from pipe\n");
+                printf("third: Can\'t read string from pipe\n");
                 exit(-1);
             }
-            printf("grandChild exit, str_buf: %s\n", str_buf);
-            for (size_t i = 0; i < 10; i++)
+            printf("third: exit, number of digits in the file:\n");
+            for (int i = 0; i < 10; i++)
             {
-                printf("%d ", numbers[i]);
+                printf("%d: %d\t", i, numbers[i]);
             }
-            
+            printf("\n");
+
             if (close(fd[0]) < 0)
             {
-                printf("grandchild: Can\'t close reading side of pipe\n");
+                printf("third: Can\'t close reading side of pipe\n");
                 exit(-1);
             }
         }

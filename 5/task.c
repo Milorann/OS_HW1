@@ -20,7 +20,11 @@ int main(int argc, char *argv[])
     char str_buf[buf_size];
     char name1[] = "listerenko1.fifo";
 
-    mknod(name1, S_IFIFO | 0666, 0);
+    if (mknod(name1, S_IFIFO | 0666, 0) < 0)
+    {
+        printf("Can\'t create the first FIFO (it can already exist)\n");
+        exit(-1);
+    }
 
     result1 = fork();
     if (result1 < 0)
@@ -83,7 +87,11 @@ int main(int argc, char *argv[])
         ssize_t size2;
         char name2[] = "listerenko2.fifo";
 
-        mknod(name2, S_IFIFO | 0666, 0);
+        if (mknod(name2, S_IFIFO | 0666, 0) < 0)
+        {
+            printf("Can\'t create the second FIFO (it can already exist)\n");
+            exit(-1);
+        }
 
         result2 = fork();
         if (result2 < 0)

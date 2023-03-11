@@ -60,6 +60,12 @@ int main(int argc, char *argv[])
             printf("first: Can\'t close the input file\n");
         }
 
+        // for an empty file
+        if (read_bytes == 0)
+        {
+            ++read_bytes;
+        }
+
         size1 = write(first_to_second_fd[1], text, read_bytes);
         if (size1 != read_bytes)
         {

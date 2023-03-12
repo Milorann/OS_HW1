@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
-        printf("child: exit, the text is read\n");
+        printf("child: exit, the text is read and processed\n");
     }
 
     return 0;
